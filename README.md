@@ -128,4 +128,4 @@ Projeto desenvolvido como desafio técnico.
 
 Criado por Pedro Henrique
 Github: https://github.com/Pedro-henrique-1997
-Linkedin: https://www.linkedin.com/in/pedro-hgomes-dev/
+Linkedin: https://www.linkedin.com/in/pedro-hgomes-dev
