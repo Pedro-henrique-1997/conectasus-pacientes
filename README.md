@@ -1,58 +1,131 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ConectaSUS — Cadastro de Pacientes
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplicação web desenvolvida em Laravel para cadastrar, consultar, editar e excluir pacientes vinculados a unidades de saúde.
 
-## About Laravel
+O sistema utiliza uma API REST que retorna dados em JSON e uma interface web desenvolvida com HTML, CSS, JavaScript e Bootstrap.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Tecnologias utilizadas
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP
+- Laravel
+- MySQL
+- HTML, CSS e JavaScript
+- Bootstrap 5
+- Git e GitHub
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Funcionalidades
 
-## Learning Laravel
+- Cadastro de pacientes vinculados a unidades de saúde.
+- Listagem e consulta de pacientes.
+- Edição e exclusão de pacientes.
+- Validação dos dados dos pacientes.
+- Pesquisa por nome ou CPF.
+- Paginação da listagem.
+- Consulta das unidades de saúde disponíveis.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Requisitos
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- PHP compatível com a versão do Laravel utilizada.
+- Composer.
+- MySQL.
+- Git.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Como executar o projeto
 
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### 1. Clonar o repositório
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/Pedro-henrique-1997/conectasus-pacientes.git
+cd conectasus-pacientes
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Instalar as dependências
 
-## Contributing
+```bash
+composer install
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 3. Configurar o ambiente
 
-## Code of Conduct
+No Windows PowerShell, copie o arquivo de exemplo:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```powershell
+Copy-Item .env.example .env
+```
 
-## Security Vulnerabilities
+Gere a chave da aplicação:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+php artisan key:generate
+```
 
-## License
+### 4. Configurar o banco de dados
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Crie um banco de dados MySQL chamado `conectasus`.
+
+No arquivo `.env`, configure os dados da conexão:
+
+```dotenv
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=conectasus
+DB_USERNAME=seu_usuario
+DB_PASSWORD=sua_senha
+```
+
+Substitua `seu_usuario` e `sua_senha` pelas credenciais do seu MySQL.
+
+### 5. Criar as tabelas e cadastrar as unidades de saúde
+
+```bash
+php artisan migrate --seed
+```
+
+Esse comando executa as migrations pendentes e o `DatabaseSeeder`, que chama o `HealthUnitSeeder`.
+
+### 6. Iniciar a aplicação
+
+```bash
+php artisan serve
+```
+
+Acesse a aplicação pelo navegador:
+
+- Listagem de pacientes: http://127.0.0.1:8000/patients
+- Cadastro de pacientes: http://127.0.0.1:8000/patients/create
+
+## Endpoints da API
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| GET | `/api/health-units` | Listar unidades de saúde |
+| GET | `/api/patients` | Listar pacientes |
+| POST | `/api/patients` | Cadastrar paciente |
+| GET | `/api/patients/{id}` | Consultar paciente por ID |
+| PUT | `/api/patients/{id}` | Atualizar paciente |
+| DELETE | `/api/patients/{id}` | Excluir paciente |
+
+A listagem de pacientes permite pesquisa pelo parâmetro `search` e utiliza paginação.
+
+Exemplo: `/api/patients?search=Maria`
+
+## Consultas SQL
+
+O arquivo `sql/consultas.sql` contém três consultas SQL:
+
+1. Listar pacientes com suas respectivas unidades de saúde.
+2. Contar pacientes por unidade, incluindo unidades sem pacientes.
+3. Pesquisar pacientes pelo nome utilizando `LIKE`.
+
+## Observações
+
+- O arquivo `.env` contém configurações locais e não deve ser compartilhado.
+- As migrations criam a estrutura do banco de dados.
+- O seeder cadastra as unidades de saúde iniciais.
+
+Projeto desenvolvido como desafio técnico.
+
+Criado por Pedro Henrique
+Github: https://github.com/Pedro-henrique-1997
+Linkedin: https://www.linkedin.com/in/pedro-hgomes-dev/
