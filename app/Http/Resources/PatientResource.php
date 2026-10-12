@@ -18,6 +18,10 @@ class PatientResource extends JsonResource
             'health_unit_id' => $this->health_unit_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'health_unit' => [
+    'name' => $this->healthUnit?->name,
+    'city' => $this->healthUnit?->city,
+],
         ];
     }
 }
