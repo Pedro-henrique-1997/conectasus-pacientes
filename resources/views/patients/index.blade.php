@@ -79,7 +79,7 @@
 
                     <tbody id="patients-table">
                         <tr>
-                            <td colspan="5" class="text-center py-4">
+                            <td colspan="6" class="text-center py-4">
                                 Carregando pacientes...
                             </td>
                         </tr>
@@ -125,6 +125,45 @@
             let currentPage = 1;
             let searchTerm = '';
 
+
+            function somenteNumeros(valor) {
+                return valor.replace(/\D/g, '');
+            }
+
+            function formatarCPF(valor) {
+                const numeros = somenteNumeros(valor).slice(0, 11);
+
+                return numeros
+                    .replace(/^(\d{3})(\d)/, '$1.$2')
+                    .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+                    .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d{1,2})$/, '$1.$2.$3-$4');
+            }
+
+            function formatarTelefone(valor) {
+                const numeros = somenteNumeros(valor).slice(0, 11);
+
+                if (numeros.length <= 2) {
+                    return numeros ? `(${numeros}` : '';
+                }
+
+                if (numeros.length <= 6) {
+                    return numeros.replace(/^(\d{2})(\d+)/, '($1) $2');
+                }
+
+                if (numeros.length <= 10) {
+                    return numeros.replace(
+                        /^(\d{2})(\d{4})(\d{0,4})$/,
+                        '($1) $2-$3'
+                    ).replace(/-$/, '');
+                }
+
+                return numeros.replace(
+                    /^(\d{2})(\d{5})(\d{0,4})$/,
+                    '($1) $2-$3'
+                ).replace(/-$/, '');
+            }
+
+
             // Busca pacientes usando o filtro e a página escolhida.
             async function loadPatients(page = 1) {
                 message.textContent = '';
@@ -132,7 +171,7 @@
 
                 table.innerHTML = `
                     <tr>
-                        <td colspan="5" class="text-center py-4">
+                        <td colspan="6" class="text-center py-4">
                             Carregando pacientes...
                         </td>
                     </tr>
@@ -171,7 +210,7 @@
                     if (result.data.length === 0) {
                         table.innerHTML = `
                             <tr>
-                                <td colspan="5" class="text-center py-4">
+                                <td colspan="6" class="text-center py-4">
                                     Nenhum paciente encontrado.
                                 </td>
                             </tr>
@@ -181,15 +220,27 @@
                     result.data.forEach((patient) => {
                         const row = document.createElement('tr');
 
+
+                        function formatarData(data) {
+                            if (!data) {
+                                return 'Não informada';
+                            }
+
+                            const [ano, mes, dia] = data.split('-');
+
+                            return `${dia}/${mes}/${ano}`;
+                        }
+
                         const values = [
                             patient.name,
-                            patient.cpf,
-                            patient.birth_date,
-                            patient.phone || 'Não informado',
+                            formatarCPF(patient.cpf),
+                            formatarData(patient.birth_date),
+                            patient.phone ? formatarTelefone(patient.phone) : 'Não informado',
                             patient.health_unit ?
                             `${patient.health_unit.name} - ${patient.health_unit.city}` :
                             'Unidade não informada'
                         ];
+
 
                         values.forEach((value) => {
                             const cell = document.createElement('td');
