@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,9 +8,9 @@
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+        rel="stylesheet">
 </head>
+
 <body class="bg-light">
 
     <main class="container py-5">
@@ -40,12 +40,12 @@
                                     class="form-control"
                                     id="name"
                                     name="name"
-                                    required
-                                >
+                                    required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="cpf" class="form-label">CPF</label>
+
 
                                 <input
                                     type="text"
@@ -53,9 +53,11 @@
                                     id="cpf"
                                     name="cpf"
                                     inputmode="numeric"
-                                    maxlength="11"
-                                    required
-                                >
+                                    maxlength="14"
+                                    placeholder="000.000.000-00"
+                                    autocomplete="off"
+                                    required>
+
                             </div>
 
                             <div class="mb-3">
@@ -68,8 +70,7 @@
                                     class="form-control"
                                     id="birth_date"
                                     name="birth_date"
-                                    required
-                                >
+                                    required>
                             </div>
 
                             <div class="mb-3">
@@ -77,12 +78,17 @@
                                     Telefone (opcional)
                                 </label>
 
+
                                 <input
                                     type="tel"
                                     class="form-control"
                                     id="phone"
                                     name="phone"
-                                >
+                                    inputmode="numeric"
+                                    maxlength="15"
+                                    placeholder="(21) 99999-9999"
+                                    autocomplete="tel">
+
                             </div>
 
                             <div class="mb-3">
@@ -94,8 +100,7 @@
                                     class="form-select"
                                     id="health_unit_id"
                                     name="health_unit_id"
-                                    required
-                                >
+                                    required>
                                     <option value="">
                                         Carregando unidades...
                                     </option>
@@ -107,8 +112,7 @@
                                     type="submit"
                                     id="save-button"
                                     class="btn btn-primary"
-                                    disabled
-                                >
+                                    disabled>
                                     Salvar alterações
                                 </button>
 
@@ -126,11 +130,61 @@
     </main>
 
     <script>
+        function somenteNumeros(valor) {
+            return valor.replace(/\D/g, '');
+        }
+
+        function formatarCPF(valor) {
+            const numeros = somenteNumeros(valor).slice(0, 11);
+
+            return numeros
+                .replace(/^(\d{3})(\d)/, '$1.$2')
+                .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+                .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d{1,2})$/, '$1.$2.$3-$4');
+        }
+
+        function formatarTelefone(valor) {
+            const numeros = somenteNumeros(valor).slice(0, 11);
+
+            if (numeros.length <= 2) {
+                return numeros ? `(${numeros}` : '';
+            }
+
+            if (numeros.length <= 6) {
+                return numeros.replace(/^(\d{2})(\d+)/, '($1) $2');
+            }
+
+            if (numeros.length <= 10) {
+                return numeros.replace(
+                    /^(\d{2})(\d{4})(\d{0,4})$/,
+                    '($1) $2-$3'
+                ).replace(/-$/, '');
+            }
+
+            return numeros.replace(
+                /^(\d{2})(\d{5})(\d{0,4})$/,
+                '($1) $2-$3'
+            ).replace(/-$/, '');
+        }
+
+
+
         document.addEventListener('DOMContentLoaded', async () => {
             const form = document.getElementById('patient-form');
             const message = document.getElementById('form-message');
             const select = document.getElementById('health_unit_id');
             const saveButton = document.getElementById('save-button');
+
+            const cpfInput = document.getElementById('cpf');
+            const phoneInput = document.getElementById('phone');
+
+            cpfInput.addEventListener('input', () => {
+                cpfInput.value = formatarCPF(cpfInput.value);
+            });
+
+            phoneInput.addEventListener('input', () => {
+                phoneInput.value = formatarTelefone(phoneInput.value);
+            });
 
             // Obtém o ID do paciente pela URL da página.
             const pathParts = window.location.pathname.split('/');
@@ -166,8 +220,7 @@
 
                 // Busca os dados atuais do paciente.
                 const patientResponse = await fetch(
-                    `/api/patients/${patientId}`,
-                    {
+                    `/api/patients/${patientId}`, {
                         headers: {
                             'Accept': 'application/json'
                         }
@@ -183,9 +236,9 @@
 
                 // Preenche os campos com os dados existentes.
                 form.elements.name.value = patient.name;
-                form.elements.cpf.value = patient.cpf;
+                form.elements.cpf.value = formatarCPF(patient.cpf);
                 form.elements.birth_date.value = patient.birth_date;
-                form.elements.phone.value = patient.phone ?? '';
+                form.elements.phone.value = formatarTelefone(patient.phone ?? '');
                 select.value = patient.health_unit_id;
 
                 saveButton.disabled = false;
@@ -205,11 +258,12 @@
 
                 const formData = new FormData(form);
                 const patient = Object.fromEntries(formData.entries());
+                patient.cpf = somenteNumeros(patient.cpf);
+                patient.phone = somenteNumeros(patient.phone);
 
                 try {
                     const response = await fetch(
-                        `/api/patients/${patientId}`,
-                        {
+                        `/api/patients/${patientId}`, {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -244,4 +298,5 @@
     </script>
 
 </body>
+
 </html>

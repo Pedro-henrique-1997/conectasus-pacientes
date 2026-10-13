@@ -39,15 +39,18 @@
 
                             <div class="mb-3">
                                 <label for="cpf" class="form-label">CPF</label>
+
                                 <input
                                     type="text"
                                     class="form-control"
                                     id="cpf"
                                     name="cpf"
                                     inputmode="numeric"
-                                    maxlength="11"
-                                    placeholder="Somente números"
+                                    maxlength="14"
+                                    placeholder="000.000.000-00"
+                                    autocomplete="off"
                                     required>
+
                             </div>
 
                             <div class="mb-3">
@@ -66,11 +69,17 @@
                                 <label for="phone" class="form-label">
                                     Telefone (opcional)
                                 </label>
+
                                 <input
                                     type="tel"
                                     class="form-control"
                                     id="phone"
-                                    name="phone">
+                                    name="phone"
+                                    inputmode="numeric"
+                                    maxlength="15"
+                                    placeholder="(21) 99999-9999"
+                                    autocomplete="tel">
+
                             </div>
 
                             <div class="mb-3">
@@ -89,7 +98,7 @@
                             <div id="form-message" class="mb-3"
                                 role="alert" aria-live="polite"></div>
 
-                            
+
                             <div class="d-flex gap-3">
                                 <button type="submit" class="btn btn-primary flex-grow-1">
                                     Cadastrar paciente
@@ -99,7 +108,7 @@
                                     Voltar para pacientes
                                 </a>
                             </div>
-                        
+
                         </form>
                     </div>
                 </div>
@@ -110,10 +119,62 @@
 
 
     <script>
+        function somenteNumeros(valor) {
+            return valor.replace(/\D/g, '');
+        }
+
+        function formatarCPF(valor) {
+            const numeros = somenteNumeros(valor).slice(0, 11);
+
+            return numeros
+                .replace(/(\d{3})(\d)/, '$1.$2')
+                .replace(/(\d{3})(\d)/, '$1.$2')
+                .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        }
+
+        function formatarTelefone(valor) {
+            const numeros = somenteNumeros(valor).slice(0, 11);
+
+            if (numeros.length <= 2) {
+                return numeros.length ? `(${numeros}` : '';
+            }
+
+            if (numeros.length <= 6) {
+                return numeros.replace(/^(\d{2})(\d+)/, '($1) $2');
+            }
+
+            if (numeros.length <= 10) {
+                return numeros.replace(
+                    /^(\d{2})(\d{4})(\d{0,4})$/,
+                    '($1) $2-$3'
+                ).replace(/-$/, '');
+            }
+
+            return numeros.replace(
+                /^(\d{2})(\d{5})(\d{0,4})$/,
+                '($1) $2-$3'
+            ).replace(/-$/, '');
+        }
+
+
+
         document.addEventListener('DOMContentLoaded', async () => {
             const select = document.getElementById('health_unit_id');
             const form = document.getElementById('patient-form');
             const message = document.getElementById('form-message');
+
+
+            const cpfInput = document.getElementById('cpf');
+            const phoneInput = document.getElementById('phone');
+
+            cpfInput.addEventListener('input', () => {
+                cpfInput.value = formatarCPF(cpfInput.value);
+            });
+
+            phoneInput.addEventListener('input', () => {
+                phoneInput.value = formatarTelefone(phoneInput.value);
+            });
+
 
             // Carrega as unidades de saúde.
             try {
@@ -144,8 +205,13 @@
                 message.textContent = '';
                 message.className = 'mb-3';
 
+
                 const formData = new FormData(form);
                 const patient = Object.fromEntries(formData.entries());
+
+                patient.cpf = somenteNumeros(patient.cpf);
+                patient.phone = somenteNumeros(patient.phone);
+
 
                 try {
                     const response = await fetch('/api/patients', {
