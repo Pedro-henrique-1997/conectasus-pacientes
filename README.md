@@ -95,6 +95,36 @@ Acesse a aplicação pelo navegador:
 - Listagem de pacientes: http://127.0.0.1:8000/patients
 - Cadastro de pacientes: http://127.0.0.1:8000/patients/create
 
+## Testes automatizados
+
+O projeto possui testes automatizados para verificar o funcionamento da API de pacientes, incluindo cadastro, consulta, atualização, exclusão e validação dos dados.
+
+Os testes utilizam SQLite em memória, configurado no ambiente de testes do Laravel. Dessa forma, os testes podem ser executados sem alterar os dados do banco MySQL utilizado pela aplicação.
+
+### Executar os testes
+
+Com as dependências instaladas, execute na raiz do projeto:
+
+```bash
+php artisan test
+```
+
+O Laravel executará os testes unitários e de funcionalidade disponíveis no projeto.
+
+### Cenários testados
+
+Os testes da API de pacientes verificam:
+
+- Cadastro de um paciente.
+- Rejeição de CPF duplicado.
+- Rejeição de unidade de saúde inexistente.
+- Consulta da lista de pacientes.
+- Atualização de um paciente.
+- Exclusão de um paciente.
+- Rejeição de CPF com quantidade inválida de dígitos.
+
+Os testes utilizam o banco SQLite em memória, evitando a necessidade de cadastrar manualmente pacientes ou unidades de saúde no banco de dados principal.
+
 ## Endpoints da API
 
 | Método | Endpoint | Descrição |
